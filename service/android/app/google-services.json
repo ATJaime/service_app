@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "99827661795",
+    "project_id": "serviceapp-700a0",
+    "storage_bucket": "serviceapp-700a0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99827661795:android:01b194341af7a23179bed6",
+        "android_client_info": {
+          "package_name": "com.jaime.service"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCAo6QmZNF7p0Zmj5_mH08puvLd5wHPh0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

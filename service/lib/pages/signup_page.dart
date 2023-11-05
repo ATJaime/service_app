@@ -9,6 +9,9 @@ class SignUp extends StatefulWidget {
 
 class _FirebaseSignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +22,39 @@ class _FirebaseSignUpState extends State<SignUp> {
                 padding: const EdgeInsets.all(20),
                 child: Form(
                   key: _formKey,
-                  child: const Column(
+                  child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: []),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(22.0),
+                          child: Column(
+                            children: [
+                              TextField(
+                                controller: _nameController,
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Nombre',
+                                ),
+                              ),
+                              TextField(
+                                controller: _emailController,
+                                decoration: const InputDecoration(
+                                  border:  OutlineInputBorder(),
+                                  labelText: 'Correo',
+                                ),
+                              ),
+                              TextField(
+                                controller: _passwordController,
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Contraseña',
+                                ),
+                              ),
+                            ],
+                          )
+                        )
+                      ]
+                    ),
                 ))));
   }
 }

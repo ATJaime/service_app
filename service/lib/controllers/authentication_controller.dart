@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
 class AuthenticationController extends GetxController {
-  final logged = false.obs;
+  final logged = true.obs;
 
   bool get isLogged => logged.value;
 
