@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:service/controllers/authentication_controller.dart';
 import 'package:service/controllers/user_controller.dart';
 import 'package:service/methods/common_methods.dart';
+import 'package:service/pages/home.dart';
 import 'package:service/pages/signup_page.dart';
 import 'package:service/widgets/loading_dialog.dart';
 
@@ -67,7 +68,9 @@ class _LoginState extends State<Login> {
           userController.setUsername((snap.snapshot.value as Map)["name"]);
           userController.setEmail((snap.snapshot.value as Map)["email"]);
           authenticationController.logIn();
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
         }else{
+          FirebaseAuth.instance.signOut();
           commonMethods.displaySnackBar("No se encontró el usuario", context);
         }
       });

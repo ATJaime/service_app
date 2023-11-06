@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:service/controllers/user_controller.dart';
-import 'package:service/pages/central.dart';
 import 'package:get/get.dart';
 import 'package:service/controllers/authentication_controller.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:service/pages/home.dart';
+import 'package:service/pages/login_page.dart';
 
 Future <void> main() async {
 
@@ -14,6 +17,14 @@ Future <void> main() async {
       appId:'com.jaime.service',
       messagingSenderId:'99827661795',
       projectId:'serviceapp-700a0'
+      )
+    );
+  
+  await Permission.locationWhenInUse.isDenied.then(((valueOfPermission) {
+          if(valueOfPermission){
+            Permission.locationWhenInUse.request();
+          }
+        }
       )
     );
   
@@ -33,7 +44,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Central(),
+      home: FirebaseAuth.instance.currentUser == null ? const Login(): const Home(),
       debugShowCheckedModeBanner: false,
     );
   }
