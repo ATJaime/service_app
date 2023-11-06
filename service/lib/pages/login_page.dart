@@ -27,7 +27,7 @@ class _LoginState extends State<Login> {
     commonMethods.checkConnectivity(context);
   }
 
-  loginFormValidation(){
+  loginFormValidation() async{
     if(_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty){
       commonMethods.displaySnackBar("Por favor, ingrese todos los campos", context);
     }else if(!_emailController.text.trim().contains("@")){
@@ -36,7 +36,7 @@ class _LoginState extends State<Login> {
     else if(_passwordController.text.trim().length < 6){
       commonMethods.displaySnackBar("La contraseña debe tener al menos 6 caracteres", context);
     }else{
-      loginUser();
+      await loginUser();
     }
   }
 
@@ -87,6 +87,7 @@ class _LoginState extends State<Login> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+          Image.asset("assets/images/logo.png"),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(

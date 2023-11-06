@@ -81,6 +81,7 @@ class _FirebaseSignUpState extends State<SignUp> {
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        Image.asset("assets/images/logo.png"),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
