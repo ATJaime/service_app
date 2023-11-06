@@ -46,34 +46,38 @@ class _LoginState extends State<Login> {
       barrierDismissible: false,
       builder: (BuildContext context) => LoadingDialog(message: "Iniciando sesión")
     );
+    try{
+      final User? userFirebase = (
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text, 
+          password: _passwordController.text
+        // ignore: body_might_complete_normally_catch_error
+        ).catchError((errorMessage){
+          Navigator.pop(context);
+          commonMethods.displaySnackBar(errorMessage.toString(), context);
+        })
+      ).user;
 
-    final User? userFirebase = (
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text, 
-        password: _passwordController.text
-      // ignore: body_might_complete_normally_catch_error
-      ).catchError((errorMessage){
-        Navigator.pop(context);
-        commonMethods.displaySnackBar(errorMessage.toString(), context);
-      })
-    ).user;
+      if(!context.mounted) return;
+      Navigator.pop(context);
 
-    if(!context.mounted) return;
-    Navigator.pop(context);
-
-    if(userFirebase != null){
-      DatabaseReference userRef = FirebaseDatabase.instance.ref().child("users").child(userFirebase.uid); 
-      userRef.once().then((snap){
-        if(snap.snapshot.value != null){
-          userController.setUsername((snap.snapshot.value as Map)["name"]);
-          userController.setEmail((snap.snapshot.value as Map)["email"]);
-          authenticationController.logIn();
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
-        }else{
-          FirebaseAuth.instance.signOut();
-          commonMethods.displaySnackBar("No se encontró el usuario", context);
-        }
-      });
+      if(userFirebase != null){
+        DatabaseReference userRef = FirebaseDatabase.instance.ref().child("users").child(userFirebase.uid); 
+        userRef.once().then((snap){
+          if(snap.snapshot.value != null){
+            userController.setUsername((snap.snapshot.value as Map)["name"]);
+            userController.setEmail((snap.snapshot.value as Map)["email"]);
+            authenticationController.logIn();
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
+          }else{
+            FirebaseAuth.instance.signOut();
+            commonMethods.displaySnackBar("No se encontró el usuario", context);
+          }
+        });
+      }
+    }catch(e){
+      if(!context.mounted) return;
+      commonMethods.displaySnackBar(e.toString(), context);
     }
   }
 

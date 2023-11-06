@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:loggy/loggy.dart';
 import 'package:service/controllers/authentication_controller.dart';
 import 'package:service/controllers/user_controller.dart';
 import 'package:service/methods/common_methods.dart';
+import 'package:service/pages/chats_list_page.dart';
+import 'package:service/pages/getting_service_page.dart';
 import 'package:service/pages/login_page.dart';
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -120,17 +121,21 @@ class _HomeState extends State<Home>{
 
               const SizedBox(height: 10),
 
-               ListTile(
-                leading: IconButton(
-                  onPressed: (){
-                    logInfo("------------------------------------------------\n");      
-                    logInfo(userController.username);
-                    logInfo("\n------------------------------------------------");
-                  },
-                  icon: const Icon(Icons.chat, color: Colors.grey)
-                ),
-                title: const Text("Mensajes"),
+              GestureDetector(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+                },
+                child: ListTile(
+                  leading: IconButton(
+                      onPressed: (){
+                        
+                      },
+                      icon: const Icon(Icons.chat, color: Colors.grey)
+                    ),
+                    title: const Text("Mensajes"),
+                  )
               ),
+
               const ListTile(
                 leading: IconButton(
                   onPressed: null,
@@ -138,19 +143,21 @@ class _HomeState extends State<Home>{
                 ),
                 title: Text("Historial"),
               ),
-              ListTile(
-                leading: IconButton(
-                  onPressed: () {
-                    userController.dispose();
-                    authenticationController.logOut();
-                    FirebaseAuth.instance.signOut();
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
-                  },
-                  icon: const Icon(Icons.logout, color: Colors.grey)
-                  
-                ),
+              GestureDetector(
+                onTap: (){
+                  userController.setUsername("");
+                  userController.setEmail("");
+                  authenticationController.logOut();
+                  FirebaseAuth.instance.signOut();
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
+                },
+                child: ListTile(
+                  leading: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.logout, color: Colors.grey)
+                  ),
                 title: const Text("Cerrar sesión"),
-              ),
+              )),
           ]),
         )
       ),
@@ -159,6 +166,7 @@ class _HomeState extends State<Home>{
         child: Stack(
               children: [
                 GoogleMap(
+                  padding: const EdgeInsets.only(top: 30, bottom: 320),
                   mapType: MapType.normal,
                   myLocationEnabled: true,
                   initialCameraPosition: _kGooglePlex,
@@ -169,6 +177,7 @@ class _HomeState extends State<Home>{
                     getCurrentLiveLocation();
                   },
                 ),
+                
                 Positioned(
                   top: 42,
                   left: 19,
@@ -198,6 +207,38 @@ class _HomeState extends State<Home>{
                         )
                       )
                     )
+                  )
+                ),
+              
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: -80,
+                  child: SizedBox(
+                    height: 276,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton(
+                          onPressed: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const GetServicePage()));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(24)
+                          ),
+                          child: const Icon(Icons.search, color: Colors.white, size: 25)),
+                          ElevatedButton(
+                            onPressed: (){},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(24)
+                            ),
+                            child: const Icon(Icons.work, color: Colors.white, size: 25)),
+                      ]
+                    ),
                   )
                 )
               ],

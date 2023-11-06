@@ -1,12 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:service/controllers/user_controller.dart';
 import 'package:get/get.dart';
 import 'package:service/controllers/authentication_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:service/pages/home.dart';
 import 'package:service/pages/login_page.dart';
+import 'package:service/providers/firebase_provider.dart';
 
 Future <void> main() async {
 
@@ -38,14 +40,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'ServiceApp',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: FirebaseAuth.instance.currentUser == null ? const Login(): const Home(),
-      debugShowCheckedModeBanner: false,
+    return ChangeNotifierProvider(
+      create: (_) => FirebaseProvider(),
+      child: GetMaterialApp(
+        title: 'ServiceApp',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: FirebaseAuth.instance.currentUser == null ? const Login(): const Home(),
+        debugShowCheckedModeBanner: false,
+      )
     );
   }
 }

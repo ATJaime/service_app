@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:service/methods/common_methods.dart';
 import 'package:service/pages/login_page.dart';
+import 'package:service/services/firebase_firestore_service.dart';
 import 'package:service/widgets/loading_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -43,30 +44,42 @@ class _FirebaseSignUpState extends State<SignUp> {
       builder: (BuildContext context) => LoadingDialog(message: "Registrando usuario")
     );
 
-    final User? userFirebase = (
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text, 
-        password: _passwordController.text
-      // ignore: body_might_complete_normally_catch_error
-      ).catchError((errorMessage){
-        Navigator.pop(context);
-        commonMethods.displaySnackBar(errorMessage.toString(), context);
-      })
-    ).user;
-    if (!context.mounted) return; 
-    Navigator.pop(context);
+    try{
+      final User? userFirebase = (
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text, 
+          password: _passwordController.text
+        ).catchError((errorMessage){
+          Navigator.pop(context);
+          commonMethods.displaySnackBar(errorMessage.toString(), context);
+          return errorMessage;
+        })
+      ).user;
 
-    DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users").child(userFirebase!.uid);
+      await FirebaseFirestoreService.createUser(
+        uid: userFirebase!.uid,
+        name: _nameController.text,
+        email: _emailController.text,
+      );
 
-    Map userDataMap =
-    {
-      "name": _nameController.text.trim(),
-      "email": _emailController.text.trim(),
-      "id": userFirebase.uid,
+      if (!context.mounted) return; 
+      Navigator.pop(context);
 
-    };
-    usersRef.set(userDataMap);
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
+      DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users").child(userFirebase.uid);
+
+      Map userDataMap =
+      {
+        "name": _nameController.text.trim(),
+        "email": _emailController.text.trim(),
+        "id": userFirebase.uid,
+
+      };
+      usersRef.set(userDataMap);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
+    }catch(e){
+      if (!context.mounted) return;
+      commonMethods.displaySnackBar(e.toString(), context);
+    }
   }
 
   @override
