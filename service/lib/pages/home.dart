@@ -123,7 +123,7 @@ class _HomeState extends State<Home>{
 
               GestureDetector(
                 onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatsScreen()));
                 },
                 child: ListTile(
                   leading: IconButton(

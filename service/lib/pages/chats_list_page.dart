@@ -4,12 +4,12 @@ import 'package:service/providers/firebase_provider.dart';
 import 'package:service/widgets/user_item.dart';
 import 'package:provider/provider.dart';
 
-class ChatScreen extends StatefulWidget{
-  const ChatScreen({Key? key}) : super(key: key);
+class ChatsScreen extends StatefulWidget{
+  const ChatsScreen({Key? key}) : super(key: key);
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<ChatsScreen> createState() => _ChatScreenState();
 }
-class _ChatScreenState extends State<ChatScreen>{
+class _ChatScreenState extends State<ChatsScreen>{
 
   @override
   void initState() {

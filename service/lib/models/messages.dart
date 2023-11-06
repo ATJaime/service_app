@@ -1,28 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Message {
   final String senderId;
+  final String senderEmail;
   final String receiverId;
   final String content;
-  final DateTime sentTime;
+  final Timestamp timestamp;
 
-  const Message({
+  Message({
     required this.senderId,
+    required this.senderEmail,
     required this.receiverId,
-    required this.sentTime,
     required this.content,
+    required this.timestamp,
   });
 
-  factory Message.fromJson(Map<String, dynamic> json) =>
-      Message(
-        receiverId: json['receiverId'],
-        senderId: json['senderId'],
-        sentTime: json['sentTime'].toDate(),
-        content: json['content'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        'receiverId': receiverId,
-        'senderId': senderId,
-        'sentTime': sentTime,
-        'content': content,
-      };
+  Map<String, dynamic> toMap(){
+    return {
+      'senderId': senderId,
+      'senderEmail': senderEmail,
+      'receiverId': receiverId,
+      'content': content,
+      'timestamp': timestamp,
+    };
+  }
 }
