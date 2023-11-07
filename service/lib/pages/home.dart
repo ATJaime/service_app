@@ -10,7 +10,9 @@ import 'package:service/controllers/user_controller.dart';
 import 'package:service/methods/common_methods.dart';
 import 'package:service/pages/chats_list_page.dart';
 import 'package:service/pages/getting_service_page.dart';
+import 'package:service/pages/historial_list_page.dart';
 import 'package:service/pages/login_page.dart';
+import 'package:service/services/request_service.dart';
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -21,6 +23,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home>{
   AuthenticationController authenticationController = Get.find();
   UserController userController = Get.find();
+  final RequestService _requestService = RequestService();
+
   final Completer<GoogleMapController> _googleMapsController =
       Completer<GoogleMapController>();
   GoogleMapController? googleMapController;
@@ -87,21 +91,11 @@ class _HomeState extends State<Home>{
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        FutureBuilder(
-                          future: getUserInfo(),
-                          builder: (BuildContext context, AsyncSnapshot snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const CircularProgressIndicator();  // Show a loading spinner while waiting
-                            } else if (snapshot.error != null) {
-                              return Text('Error: ${snapshot.error}');  // Show error message if something went wrong
-                            } else {
-                              return Text(userController.username, 
+                        Obx( () => Text(userController.username, 
                                 style: const TextStyle(fontSize: 16, 
                                   fontWeight: FontWeight.bold, 
                                   color: Colors.white
-                              ));  // Show the username once the Future completes
-                            }
-                          },
+                              ))
                         )
                       ],
                     )
@@ -135,14 +129,21 @@ class _HomeState extends State<Home>{
                     title: const Text("Mensajes"),
                   )
               ),
-
-              const ListTile(
-                leading: IconButton(
-                  onPressed: null,
-                  icon: Icon(Icons.history, color: Colors.grey)
-                ),
-                title: Text("Historial"),
+              GestureDetector(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HistorialListPage()));
+                },
+                child: ListTile(
+                  leading: IconButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HistorialListPage()));
+                    },
+                    icon: const Icon(Icons.history, color: Colors.grey)
+                  ),
+                  title: const Text("Historial"),
+                )
               ),
+
               GestureDetector(
                 onTap: (){
                   userController.setUsername("");
@@ -153,7 +154,13 @@ class _HomeState extends State<Home>{
                 },
                 child: ListTile(
                   leading: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      userController.setUsername("");
+                      userController.setEmail("");
+                      authenticationController.logOut();
+                      FirebaseAuth.instance.signOut();
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
+                    },
                     icon: const Icon(Icons.logout, color: Colors.grey)
                   ),
                 title: const Text("Cerrar sesión"),
@@ -162,7 +169,7 @@ class _HomeState extends State<Home>{
         )
       ),
       body: Container(
-        padding: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(0),
         child: Stack(
               children: [
                 GoogleMap(
@@ -214,31 +221,54 @@ class _HomeState extends State<Home>{
                   left: 0,
                   right: 0,
                   bottom: -80,
-                  child: SizedBox(
-                    height: 276,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                          onPressed: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const GetServicePage()));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            shape: const CircleBorder(),
-                            padding: const EdgeInsets.all(24)
+                  child: Obx( 
+                    () => userController.isWaiting? SizedBox(
+                      height: 140, 
+                      child: ElevatedButton(
+                        onPressed: (){
+                          userController.stopWaiting();
+                          _requestService.deleteRequest(userController.pendingRequest);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)
                           ),
-                          child: const Icon(Icons.search, color: Colors.white, size: 25)),
+                          padding: const EdgeInsets.only(bottom: 70)
+                        ),
+                        child: const Text(
+                          "Cancelar", 
+                          style: TextStyle(color: Colors.white, fontSize: 20), 
+                          textAlign: TextAlign.center
+                        )
+                      )
+                    )  
+                    : SizedBox(
+                      height: 276,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
                           ElevatedButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const GetServicePage()));
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blueAccent,
                               shape: const CircleBorder(),
                               padding: const EdgeInsets.all(24)
                             ),
-                            child: const Icon(Icons.work, color: Colors.white, size: 25)),
-                      ]
-                    ),
+                            child: const Icon(Icons.search, color: Colors.white, size: 25)),
+                            ElevatedButton(
+                              onPressed: (){},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blueAccent,
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(24)
+                              ),
+                              child: const Icon(Icons.work, color: Colors.white, size: 25)),
+                        ]
+                      ),
+                    )
                   )
                 )
               ],

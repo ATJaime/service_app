@@ -31,7 +31,8 @@ class _ChatScreenState extends State<ChatsScreen>{
           separatorBuilder: (context, index) => const SizedBox(height: 10),
           itemBuilder: (context, index) => value
           .users[index].uid != 
-          FirebaseAuth.instance.currentUser?.uid ? UserItem(user: value.users[index]): const SizedBox(),
+          FirebaseAuth.instance.currentUser?.uid ? 
+          UserItem(user: value.users[index]): const SizedBox(),
         );
       })
     );

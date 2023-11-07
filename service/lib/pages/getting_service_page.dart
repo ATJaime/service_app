@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:service/controllers/user_controller.dart';
+import 'package:service/methods/common_methods.dart';
+import 'package:service/services/request_service.dart';
+import 'package:service/widgets/loading_dialog.dart';
 
 class GetServicePage extends StatefulWidget{
   const GetServicePage({Key? key}) : super(key: key);
@@ -10,7 +15,30 @@ class GetServicePage extends StatefulWidget{
 class _GetServicePageState extends State<GetServicePage>{
   TextEditingController typeServiceController = TextEditingController();
   TextEditingController priceController = TextEditingController();
+  final RequestService _requestService = RequestService();
+  UserController userController = Get.find();
+  CommonMethods commonMethods = CommonMethods();
 
+
+  void addRequest() async {
+    if (typeServiceController.text.isNotEmpty && priceController.text.isNotEmpty) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => LoadingDialog(message: "Publicando servicio")
+      );
+      String requestId = await _requestService.addRequest(typeServiceController.text, priceController.text);
+      typeServiceController.clear();
+      priceController.clear();
+      userController.setPendingRequest(requestId);
+      userController.waiting();
+
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      Navigator.pop(context);
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,17 +134,25 @@ class _GetServicePageState extends State<GetServicePage>{
                                   isDense: true,
                                   contentPadding: EdgeInsets.only(left: 11, top: 9, bottom: 9)
                                 ),
+                                keyboardType: TextInputType.number,
                               )
                             )
                           )
                         )
                       ],
-                    ),                    
+                    ),
                     ],
                   )
                 )
               )
-            )
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () => addRequest(), 
+            style: const ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(Colors.blueAccent),
+            ),
+            child: const Icon(Icons.search, color: Colors.white,))
           ],
         )
       )
