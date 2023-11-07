@@ -7,6 +7,8 @@ class Request {
   final String requesterId;
   String freelancerId;
   String state;
+  final String requestLat;
+  final String requestLng;
   final Timestamp timestamp;
 
   Request({
@@ -16,6 +18,8 @@ class Request {
     required this.requesterId,
     required this.freelancerId,
     required this.state,
+    required this.requestLat,
+    required this.requestLng,
     required this.timestamp,
   });
 
@@ -27,6 +31,8 @@ class Request {
       'requesterId': requesterId,
       'freelancerId': freelancerId,
       'state': state,
+      'requestLat': requestLat,
+      'requestLng': requestLng,
       'timestamp': timestamp,
     };
   }
@@ -39,6 +45,8 @@ class Request {
       requesterId: json["requesterId"],
       freelancerId: json["freelancerId"],
       state: json["state"],
+      requestLat: json["requestLat"],
+      requestLng: json["requestLng"],
       timestamp: json["timestamp"],
     );
   }

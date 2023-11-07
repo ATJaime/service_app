@@ -6,7 +6,7 @@ class RequestService extends ChangeNotifier{
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<String> addRequest(String description, String price) async{
+  Future<String> addRequest(String description, String price, List<double> location) async{
     final String currentUserId = _firebaseAuth.currentUser!.uid;
     final Timestamp timestamp = Timestamp.now();
     String requestId = '';
@@ -18,6 +18,8 @@ class RequestService extends ChangeNotifier{
       requesterId: currentUserId,
       freelancerId: '',
       state: 'Pendiente',
+      requestLat: location[0].toString(),
+      requestLng: location[1].toString(),
       timestamp: timestamp,
     );
 
@@ -45,6 +47,14 @@ class RequestService extends ChangeNotifier{
           .delete();
   }
 
-  
+  Future<List<Request>> getRequests() async{
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users_request')
+        .where("state", isEqualTo: "Pendiente")
+        .get();
 
+    return snapshot.docs
+        .map((doc) => Request.fromJson(doc.data()))
+        .toList();
+  }
 }

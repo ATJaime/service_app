@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:service/methods/common_methods.dart';
 import 'package:service/services/chat_service.dart';
 import 'package:service/widgets/message_input.dart';
 
@@ -17,11 +18,12 @@ class _ChatPageState extends State<ChatPage>{
 
   final TextEditingController _messageController = TextEditingController();
   final ChatService _chatService = ChatService();
+  final CommonMethods commonMethods = CommonMethods();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   void sendMessage() async {
     if (_messageController.text.isNotEmpty) {
-      await _chatService.sendMessage(widget.recieverUserId, _messageController.text);
+      await commonMethods.sendMessage(widget.recieverUserId, _messageController.text);
       _messageController.clear();
     }
   }

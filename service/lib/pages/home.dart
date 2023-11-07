@@ -8,11 +8,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:service/controllers/authentication_controller.dart';
 import 'package:service/controllers/user_controller.dart';
 import 'package:service/methods/common_methods.dart';
+import 'package:service/models/requests.dart';
 import 'package:service/pages/chats_list_page.dart';
 import 'package:service/pages/getting_service_page.dart';
 import 'package:service/pages/historial_list_page.dart';
 import 'package:service/pages/login_page.dart';
 import 'package:service/services/request_service.dart';
+
+import '../widgets/loading_dialog.dart';
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -24,6 +27,8 @@ class _HomeState extends State<Home>{
   AuthenticationController authenticationController = Get.find();
   UserController userController = Get.find();
   final RequestService _requestService = RequestService();
+  List<Request> requests = [];
+  Set<Marker> markers = {};
 
   final Completer<GoogleMapController> _googleMapsController =
       Completer<GoogleMapController>();
@@ -43,6 +48,7 @@ class _HomeState extends State<Home>{
     currentPositionOfUser = positionOfUser;
 
     LatLng positionOfUserLatLng = LatLng(currentPositionOfUser.latitude, currentPositionOfUser.longitude);
+    userController.setLocation(positionOfUserLatLng.latitude, positionOfUserLatLng.longitude);
     CameraPosition cameraPosition = CameraPosition(target: positionOfUserLatLng, zoom: 15);
     googleMapController!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
@@ -62,6 +68,63 @@ class _HomeState extends State<Home>{
     });
   }
 
+  looking() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => LoadingDialog(message: "Buscando trabajos")
+    );
+    requests = await _requestService.getRequests();
+    Set<Marker> marks = {};
+    for(Request request in requests){
+      marks.add(Marker(
+        markerId: MarkerId(request.requestId),
+        position: LatLng(double.parse(request.requestLat), double.parse(request.requestLng)),
+        infoWindow: InfoWindow(
+          title: request.description,
+          snippet: request.price,
+          onTap: (){
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) => AlertDialog(
+                title: Text(request.description),
+                content: Text("Precio: ${request.price}"),
+                actions: [
+                  TextButton(
+                    onPressed: (){
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Cerrar")
+                  ),
+                  TextButton(
+                    onPressed: (){
+                      commonMethods.sendMessage(request.requesterId, 
+                        "Hola, estoy interesado en el trabajo para ${request.description}");
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Enviar propuesta")
+                  )
+                ],
+              )
+            );
+          }
+        ),
+      ));
+    }
+    debugPrint(requests.first.requestLat + userController.location[0].toString());
+    if(!context.mounted) return;
+    Navigator.pop(context);
+    setState(() => markers = marks);
+  }
+
+  setMarkers() async{
+    if(userController.lookingJob){
+      await looking();
+    }else{
+      markers.clear();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +162,7 @@ class _HomeState extends State<Home>{
                         )
                       ],
                     )
-
                   ],
-                  
-
                 )
               )
              ),
@@ -122,7 +182,7 @@ class _HomeState extends State<Home>{
                 child: ListTile(
                   leading: IconButton(
                       onPressed: (){
-                        
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatsScreen()));
                       },
                       icon: const Icon(Icons.chat, color: Colors.grey)
                     ),
@@ -146,8 +206,8 @@ class _HomeState extends State<Home>{
 
               GestureDetector(
                 onTap: (){
-                  userController.setUsername("");
-                  userController.setEmail("");
+                  if(userController.isWaiting) _requestService.deleteRequest(userController.pendingRequest);
+                  userController.reset();
                   authenticationController.logOut();
                   FirebaseAuth.instance.signOut();
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
@@ -155,8 +215,8 @@ class _HomeState extends State<Home>{
                 child: ListTile(
                   leading: IconButton(
                     onPressed: () {
-                      userController.setUsername("");
-                      userController.setEmail("");
+                      if(userController.isWaiting) _requestService.deleteRequest(userController.pendingRequest);
+                      userController.reset();
                       authenticationController.logOut();
                       FirebaseAuth.instance.signOut();
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
@@ -172,18 +232,28 @@ class _HomeState extends State<Home>{
         padding: const EdgeInsets.all(0),
         child: Stack(
               children: [
-                GoogleMap(
-                  padding: const EdgeInsets.only(top: 30, bottom: 320),
-                  mapType: MapType.normal,
-                  myLocationEnabled: true,
-                  initialCameraPosition: _kGooglePlex,
-                  onMapCreated: (GoogleMapController mapController){
-                    googleMapController = mapController;
-                    _googleMapsController.complete(mapController);
-                    getUserInfo();
-                    getCurrentLiveLocation();
-                  },
+                Obx(() => 
+                  GoogleMap(
+                    padding: const EdgeInsets.only(top: 30, bottom: 320),
+                    mapType: MapType.normal,
+                    myLocationEnabled: true,
+                    initialCameraPosition: _kGooglePlex,
+                    onMapCreated: (GoogleMapController mapController){
+                      googleMapController = mapController;
+                      _googleMapsController.complete(mapController);
+                      getUserInfo();
+                      getCurrentLiveLocation();
+                    },
+                    markers: userController.isWaiting ? 
+                      {
+                        Marker(
+                          markerId: const MarkerId("Esperando"), 
+                          position: LatLng(userController.location[0], userController.location[1])
+                        )
+                      }  : markers,
+                  ),
                 ),
+                
                 
                 Positioned(
                   top: 42,
@@ -222,12 +292,19 @@ class _HomeState extends State<Home>{
                   right: 0,
                   bottom: -80,
                   child: Obx( 
-                    () => userController.isWaiting? SizedBox(
+                    () => userController.isWaiting || userController.lookingJob? SizedBox(
                       height: 140, 
                       child: ElevatedButton(
                         onPressed: (){
-                          userController.stopWaiting();
-                          _requestService.deleteRequest(userController.pendingRequest);
+                          if(userController.isWaiting){
+                            userController.stopWaiting();
+                            _requestService.deleteRequest(userController.pendingRequest);
+                            userController.setPendingRequest('');
+                          }else{
+                            userController.stopLooking();
+                          }
+                          setMarkers();
+                          setState(() => requests = []);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.redAccent,
@@ -259,7 +336,10 @@ class _HomeState extends State<Home>{
                             ),
                             child: const Icon(Icons.search, color: Colors.white, size: 25)),
                             ElevatedButton(
-                              onPressed: (){},
+                              onPressed: (){
+                                userController.looking();
+                                setMarkers();
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blueAccent,
                                 shape: const CircleBorder(),

@@ -16,7 +16,7 @@ class _HistorialItemState extends State<HistorialItem>{
           widget.request.state == "Aceptado" ? Icons.arrow_circle_up_outlined: 
           widget.request.state == "Cancelado" ? Icons.cancel:
           Icons.check_circle
-          ), size: 35
+          ), size: 30
         ),     
       title: Text(
       widget.request.description,

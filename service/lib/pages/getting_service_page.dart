@@ -27,7 +27,7 @@ class _GetServicePageState extends State<GetServicePage>{
         barrierDismissible: false,
         builder: (BuildContext context) => LoadingDialog(message: "Publicando servicio")
       );
-      String requestId = await _requestService.addRequest(typeServiceController.text, priceController.text);
+      String requestId = await _requestService.addRequest(typeServiceController.text, priceController.text, userController.location);
       typeServiceController.clear();
       priceController.clear();
       userController.setPendingRequest(requestId);
