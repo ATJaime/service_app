@@ -20,7 +20,7 @@ class LoadingDialog extends StatelessWidget {
             borderRadius: BorderRadius.circular(5),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(5),
             child: Row(
               children: [
                 const SizedBox(width: 5),

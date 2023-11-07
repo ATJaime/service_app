@@ -57,4 +57,19 @@ class RequestService extends ChangeNotifier{
         .map((doc) => Request.fromJson(doc.data()))
         .toList();
   }
+
+  Future<void> proposalRequest(String userId, String requesterId, String requestId) async{
+    Map <String, dynamic> data = {
+      'userId': userId,
+      'requesterId': requesterId,
+      'requestId': requestId,
+    };
+    await _firestore.collection('users_proposals').add(data);
+  }
+
+  Stream<QuerySnapshot> getProposalRequests(String requestId){
+    return _firestore.collection('users_proposals')
+      .where('requestId', isEqualTo: requestId)
+      .snapshots();
+  }
 }

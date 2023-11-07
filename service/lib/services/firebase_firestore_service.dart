@@ -31,14 +31,20 @@ class FirebaseFirestoreService {
           .update(data);
 
   static Future<List<UserModel>> searchUser(
-      String name) async {
+      String uid) async {
     final snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .where("name", isGreaterThanOrEqualTo: name)
+        .where("uid", isEqualTo: uid)
         .get();
 
     return snapshot.docs
         .map((doc) => UserModel.fromJson(doc.data()))
         .toList();
+  }
+
+  Stream<QuerySnapshot> getUser(String userId){
+    return  FirebaseFirestore.instance.collection('users')
+      .where('uid', isEqualTo: userId)
+      .snapshots();
   }
 }

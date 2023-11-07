@@ -14,6 +14,7 @@ import 'package:service/pages/getting_service_page.dart';
 import 'package:service/pages/historial_list_page.dart';
 import 'package:service/pages/login_page.dart';
 import 'package:service/services/request_service.dart';
+import 'package:service/widgets/proposals_box.dart';
 
 import '../widgets/loading_dialog.dart';
 class Home extends StatefulWidget {
@@ -99,8 +100,11 @@ class _HomeState extends State<Home>{
                   ),
                   TextButton(
                     onPressed: (){
-                      commonMethods.sendMessage(request.requesterId, 
-                        "Hola, estoy interesado en el trabajo para ${request.description}");
+                      _requestService.proposalRequest(
+                        FirebaseAuth.instance.currentUser!.uid, 
+                          request.requesterId, 
+                          request.requestId
+                      );
                       Navigator.pop(context);
                     },
                     child: const Text("Enviar propuesta")
@@ -112,7 +116,6 @@ class _HomeState extends State<Home>{
         ),
       ));
     }
-    debugPrint(requests.first.requestLat + userController.location[0].toString());
     if(!context.mounted) return;
     Navigator.pop(context);
     setState(() => markers = marks);
@@ -290,38 +293,90 @@ class _HomeState extends State<Home>{
                 Positioned(
                   left: 0,
                   right: 0,
-                  bottom: -80,
+                  bottom: 5,
+
                   child: Obx( 
-                    () => userController.isWaiting || userController.lookingJob? SizedBox(
-                      height: 140, 
-                      child: ElevatedButton(
-                        onPressed: (){
-                          if(userController.isWaiting){
-                            userController.stopWaiting();
-                            _requestService.deleteRequest(userController.pendingRequest);
-                            userController.setPendingRequest('');
-                          }else{
-                            userController.stopLooking();
-                          }
-                          setMarkers();
-                          setState(() => requests = []);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)
+                    () => userController.isWaiting? 
+                     Column(
+                        children: [
+                          Container(
+                            height: 200,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 5,
+                                  spreadRadius: 0.5,
+                                  offset: Offset(0.7, 0.7),
+                                )
+                              ]
+                            ),
+                            child: ProposalsBox(requestId: userController.pendingRequest)
                           ),
-                          padding: const EdgeInsets.only(bottom: 70)
-                        ),
-                        child: const Text(
-                          "Cancelar", 
-                          style: TextStyle(color: Colors.white, fontSize: 20), 
-                          textAlign: TextAlign.center
+                          const SizedBox(height: 350),
+                          ElevatedButton(
+                            onPressed: (){
+                              if(userController.isWaiting){
+                                userController.stopWaiting();
+                                _requestService.deleteRequest(userController.pendingRequest);
+                                userController.setPendingRequest('');
+                              }else{
+                                userController.stopLooking();
+                              }
+                              setMarkers();
+                              setState(() => requests = []);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)
+                              ),
+                              padding: const EdgeInsets.only(bottom: 10, top: 10, left: 40, right: 40)
+                            ),
+                            child: const Text(
+                              "Cancelar", 
+                              style: TextStyle(color: Colors.white, fontSize: 20), 
+                              textAlign: TextAlign.center
+                            )
+                          )
+                        ]
+                    )
+                    : 
+                    userController.lookingJob ? 
+                    Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: (){
+                            if(userController.isWaiting){
+                              userController.stopWaiting();
+                              _requestService.deleteRequest(userController.pendingRequest);
+                              userController.setPendingRequest('');
+                            }else{
+                              userController.stopLooking();
+                            }
+                            setMarkers();
+                            setState(() => requests = []);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)
+                            ),
+                            padding: const EdgeInsets.only(bottom: 10, top: 10, left: 40, right: 40)
+                          ),
+                          child: const Text(
+                            "Cancelar", 
+                            style: TextStyle(color: Colors.white, fontSize: 20), 
+                            textAlign: TextAlign.center
+                          )
                         )
-                      )
-                    )  
+                      ]
+                    ) 
                     : SizedBox(
-                      height: 276,
+                      height: 100,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
