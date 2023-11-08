@@ -9,6 +9,7 @@ import 'package:service/controllers/authentication_controller.dart';
 import 'package:service/controllers/user_controller.dart';
 import 'package:service/methods/common_methods.dart';
 import 'package:service/models/requests.dart';
+import 'package:service/pages/chat_page.dart';
 import 'package:service/pages/chats_list_page.dart';
 import 'package:service/pages/getting_service_page.dart';
 import 'package:service/pages/historial_list_page.dart';
@@ -73,7 +74,7 @@ class _HomeState extends State<Home>{
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) => LoadingDialog(message: "Buscando trabajos")
+      builder: (BuildContext context) => LoadingDialog(message: "Buscando trabajos...")
     );
     requests = await _requestService.getRequests();
     Set<Marker> marks = {};
@@ -106,6 +107,10 @@ class _HomeState extends State<Home>{
                           request.requestId
                       );
                       Navigator.pop(context);
+                      userController.stopLooking();
+                      setState(() => markers = {});
+                      Navigator.push((context), MaterialPageRoute(builder: (context) => 
+                        ChatPage(recieverUserName: "", recieverUserId: request.requesterId)));
                     },
                     child: const Text("Enviar propuesta")
                   )

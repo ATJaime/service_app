@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:service/controllers/user_controller.dart';
 import 'package:service/models/user.dart';
+import 'package:service/pages/chat_page.dart';
 import 'package:service/services/request_service.dart';
 import 'package:service/services/firebase_firestore_service.dart';
 
@@ -16,6 +19,7 @@ class ProposalsBox extends StatefulWidget {
 class _ProposalBoxState extends State<ProposalsBox>{
 
   final RequestService _requestService = RequestService();
+  final UserController _userController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -54,8 +58,7 @@ class _ProposalBoxState extends State<ProposalsBox>{
   }
 
   Widget _buildProposalItem(DocumentSnapshot document){
-    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
+    var data = document.data() as Map<String, dynamic>;
     return StreamBuilder(
       stream: FirebaseFirestoreService().getUser(data['userId']),
       builder: (context, snapshot) {
@@ -85,12 +88,20 @@ class _ProposalBoxState extends State<ProposalsBox>{
             const SizedBox(width: 40),
             ElevatedButton(
               onPressed: (){
+                _requestService.changeRequestState('Aceptada', requesterUser.uid, widget.requestId);
+                _userController.setPendingRequest('');
+                _userController.stopWaiting();
+                Navigator.push(context, 
+                  MaterialPageRoute(builder: (context) => 
+                    ChatPage(recieverUserName: requesterUser.name, 
+                      recieverUserId: requesterUser.uid)));
               }, 
               child: const Text("Aceptar")
             ),
             const SizedBox(width: 20),
             ElevatedButton(
               onPressed: (){
+                _requestService.deleteProposal(requesterUser.uid, widget.requestId);
               }, 
               child: const Text("Rechazar")
             )

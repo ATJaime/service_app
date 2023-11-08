@@ -35,4 +35,14 @@ class ChatService extends ChangeNotifier{
       .orderBy('timestamp', descending: false)
       .snapshots();
   }
+
+   Future<bool> isEmpty(String senderId, String receiverId) async{
+    List<String> ids = [senderId, receiverId];
+    ids.sort();
+    String chatRoomId = ids.join('_');
+    bool isEmpty = true;
+    await _firestore.collection('chat_rooms').doc(chatRoomId).collection('messages').get()
+    .then((value) { isEmpty = value.docs.isEmpty;});
+    return isEmpty;
+  }
 }

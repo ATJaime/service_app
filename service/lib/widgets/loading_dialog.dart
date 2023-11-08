@@ -13,7 +13,7 @@ class LoadingDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(12)),
         backgroundColor: Colors.white,
         child: Container(
-          margin: const EdgeInsets.all(15),
+          margin: const EdgeInsets.all(5),
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.white,

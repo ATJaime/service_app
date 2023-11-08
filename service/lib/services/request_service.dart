@@ -40,6 +40,13 @@ class RequestService extends ChangeNotifier{
           .update(data);
   }
 
+  Future<void> changeRequestState(String state, String freelancerid, String requestId) async {
+      await _firestore
+          .collection('users_request')
+          .doc(requestId)
+          .update({'state': state, 'freelancerId': freelancerid});
+  }
+
   Future<void> deleteRequest(String requestId) async {
       await _firestore
           .collection('users_request')
@@ -64,12 +71,38 @@ class RequestService extends ChangeNotifier{
       'requesterId': requesterId,
       'requestId': requestId,
     };
-    await _firestore.collection('users_proposals').add(data);
+    await _firestore.collection('users_proposals')
+      .where('userId', isEqualTo: userId)
+      .where('requestId', isEqualTo: requestId).get()
+      .then((value) async {
+        if(value.docs.isEmpty){
+          await _firestore.collection('users_proposals').add(data);
+        }
+      });
   }
 
   Stream<QuerySnapshot> getProposalRequests(String requestId){
     return _firestore.collection('users_proposals')
       .where('requestId', isEqualTo: requestId)
       .snapshots();
+  }
+
+  Future<void> deleteProposal(String userId, String requestId) async {
+      String proposalId = '';
+      debugPrint(userId);
+      await _firestore
+          .collection('users_proposals')
+          .where('userId', isEqualTo: userId)
+          .where('requestId', isEqualTo: requestId)
+          .get()
+          .then((doc){
+            for (var snapshot in doc.docs){
+              proposalId = snapshot.id;
+            }
+          });
+      await _firestore
+          .collection('users_proposals')
+          .doc(proposalId)    
+          .delete();
   }
 }
