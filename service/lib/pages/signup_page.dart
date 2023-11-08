@@ -88,17 +88,16 @@ class _FirebaseSignUpState extends State<SignUp> {
         appBar: AppBar(),
         body: Center(
             child: Container(
-                padding: const EdgeInsets.all(25),
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 0, bottom: 0),
                 child: Form(
                   key: _formKey,
                   child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset("assets/images/logo.png"),
                         Padding(
-                          padding: const EdgeInsets.all(20.0),
+                          padding: const EdgeInsets.only(top: 10, bottom: 0),
                           child: Column(
                             children: [
+                              Image.asset("assets/images/logo.png"),
                               TextField(
                                 controller: _nameController,
                                 decoration: const InputDecoration(
@@ -107,7 +106,7 @@ class _FirebaseSignUpState extends State<SignUp> {
                                 ),
                               ),
                               
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 6),
                               
                               TextField(
                                 controller: _emailController,
@@ -117,7 +116,7 @@ class _FirebaseSignUpState extends State<SignUp> {
                                 ),
                               ),
                               
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 6),
                               
                               TextField(
                                 controller: _passwordController,
@@ -128,7 +127,7 @@ class _FirebaseSignUpState extends State<SignUp> {
                                 ),
                               ),
                               
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 10),
                               
                               ElevatedButton(
                                 onPressed: (){

@@ -91,11 +91,11 @@ class _LoginState extends State<Login> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-          Image.asset("assets/images/logo.png"),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
+                Image.asset("assets/images/logo.png"),
                 TextField(
                   controller: _emailController,
                   decoration: const InputDecoration(
@@ -104,7 +104,7 @@ class _LoginState extends State<Login> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 8),
 
                 TextField(
                   controller: _passwordController,
